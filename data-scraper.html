@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extrator de Dados</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #f5f5f5;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    body.dark-mode .container {
+      background: #2a2a2a;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .header {
+      padding: 20px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+
+    body.dark-mode .header {
+      border-bottom-color: #3a3a3a;
+      background: #252525;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #666;
+    }
+
+    body.dark-mode .header p {
+      color: #999;
+    }
+
+    .content {
+      padding: 16px;
+      display: none;
+    }
+
+    .content.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 12px;
+      padding: 0;
+    }
+
+    body.dark-mode .back-btn {
+      color: #999;
+    }
+
+    .back-btn:hover {
+      color: #1a1a1a;
+    }
+
+    body.dark-mode .back-btn:hover {
+      color: #fff;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      background: white;
+      color: #1a1a1a;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .btn:hover {
+      background: #f5f5f5;
+      border-color: #d0d0d0;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    body.dark-mode .btn {
+      background: #3a3a3a;
+      border-color: #4a4a4a;
+      color: #f5f5f5;
+    }
+
+    body.dark-mode .btn:hover {
+      background: #454545;
+      border-color: #555;
+    }
+
+    .btn-primary {
+      background: #0066cc;
+      color: white;
+      border-color: #0066cc;
+    }
+
+    .btn-primary:hover {
+      background: #0052a3;
+      border-color: #0052a3;
+    }
+
+    .btn-accent {
+      background: #0066cc;
+      color: white;
+      border-color: #0066cc;
+    }
+
+    .btn-accent:hover {
+      background: #0052a3;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    body.dark-mode label {
+      color: #999;
+    }
+
+    input, select, textarea {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      font-family: inherit;
+      font-size: 14px;
+      background: white;
+      color: #1a1a1a;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+    }
+
+    body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+      background: #3a3a3a;
+      color: #f5f5f5;
+      border-color: #4a4a4a;
+    }
+
+    body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus {
+      border-color: #0066cc;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .photo-preview {
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      border-radius: 8px;
+      max-height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .remove-photo-btn {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #666;
+    }
+
+    body.dark-mode .remove-photo-btn {
+      background: #3a3a3a;
+      border-color: #4a4a4a;
+      color: #999;
+    }
+
+    .camera-container {
+      margin-bottom: 12px;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 8px;
+      background: #000;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    .result-card {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    body.dark-mode .result-card {
+      background: #3a3a3a;
+      border-color: #4a4a4a;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    body.dark-mode .result-header {
+      border-bottom-color: #4a4a4a;
+    }
+
+    .result-time {
+      color: #999;
+      font-size: 11px;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #d32f2f;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0;
+    }
+
+    .delete-btn:hover {
+      color: #b71c1c;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .result-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .result-label {
+      color: #666;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    body.dark-mode .result-label {
+      color: #999;
+    }
+
+    .result-value {
+      font-weight: 500;
+      color: #1a1a1a;
+      word-break: break-word;
+    }
+
+    body.dark-mode .result-value {
+      color: #f5f5f5;
+    }
+
+    .result-photo {
+      width: 100%;
+      border-radius: 6px;
+      margin-top: 8px;
+      max-height: 100px;
+      object-fit: cover;
+    }
+
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    body.dark-mode .error-message {
+      background: #422;
+      color: #ff9999;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 16px;
+      color: #999;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .mode-hidden {
+      display: none;
+    }
+
+    .dark-mode-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    body.dark-mode .dark-mode-toggle {
+      background: #3a3a3a;
+      border-color: #4a4a4a;
+    }
+
+    .dark-mode-toggle:hover {
+      background: #f5f5f5;
+    }
+
+    body.dark-mode .dark-mode-toggle:hover {
+      background: #454545;
+    }
+  </style>
+</head>
+<body>
+  <button class="dark-mode-toggle" id="darkModeToggle">🌙</button>
+
+  <div class="container">
+    <div class="header">
+      <h1>Extrator de Dados</h1>
+      <p>Captura dados com foto, formulário ou link</p>
+    </div>
+
+    <!-- Menu Principal -->
+    <div class="content active" id="menuContent">
+      <div class="menu-buttons">
+        <button class="btn" onclick="app.goToCamera()">📷 Capturar Foto</button>
+        <button class="btn" onclick="app.goToForm()">📋 Preencher Formulário</button>
+        <button class="btn" onclick="app.goToLink()">🔗 Extrair de Link</button>
+        <button class="btn btn-accent" id="resultsBtn" style="display: none;" onclick="app.goToResults()">✓ Dados Coletados (<span id="resultCount">0</span>)</button>
+      </div>
+    </div>
+
+    <!-- Câmera -->
+    <div class="content" id="cameraContent">
+      <button class="back-btn" onclick="app.goToMenu()">← Voltar</button>
+      <div class="camera-container">
+        <video id="cameraVideo" autoplay playsinline></video>
+        <canvas id="cameraCanvas"></canvas>
+      </div>
+      <button class="btn btn-primary" style="width: 100%;" onclick="app.capturePhoto()">Capturar Foto</button>
+    </div>
+
+    <!-- Formulário -->
+    <div class="content" id="formContent">
+      <button class="back-btn" onclick="app.goToMenu()">← Voltar</button>
+      <div id="photoPreviewContainer"></div>
+      <form id="dataForm" onsubmit="app.submitForm(event)">
+        <div class="form-group">
+          <label>Telefone *</label>
+          <input type="tel" name="phone" placeholder="(11) 99999-9999" required>
+        </div>
+
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" name="fullName" placeholder="Seu nome completo" required>
+        </div>
+
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" name="email" placeholder="email@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Endereço</label>
+          <input type="text" name="address" placeholder="Rua, número, complemento">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de ID</label>
+            <select name="idType">
+              <option>CPF</option>
+              <option>CNPJ</option>
+              <option>RG</option>
+              <option>Passaporte</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Número</label>
+            <input type="text" name="idNumber" placeholder="000.000.000-00">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Empresa</label>
+          <input type="text" name="company" placeholder="Nome da empresa">
+        </div>
+
+        <div class="form-group">
+          <label>Cargo</label>
+          <input type="text" name="position" placeholder="Cargo/Função">
+        </div>
+
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea name="notes" placeholder="Anotações adicionais"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Salvar Dados</button>
+      </form>
+    </div>
+
+    <!-- Extrair de Link -->
+    <div class="content" id="linkContent">
+      <button class="back-btn" onclick="app.goToMenu()">← Voltar</button>
+      <div class="form-group">
+        <label>Cole a URL completa</label>
+        <input type="url" id="linkInput" placeholder="https://exemplo.com" style="margin-bottom: 12px;">
+        <button class="btn btn-primary" style="width: 100%;" onclick="app.extractFromLink()">Extrair Dados</button>
+      </div>
+      <div id="linkError"></div>
+    </div>
+
+    <!-- Resultados -->
+    <div class="content" id="resultsContent">
+      <button class="back-btn" onclick="app.goToMenu()">← Voltar</button>
+      <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">Dados Coletados</h2>
+      <div id="resultsList"></div>
+    </div>
+  </div>
+
+  <script>
+    const app = {
+      currentMode: 'menu',
+      results: [],
+      currentPhoto: null,
+      cameraStream: null,
+
+      init() {
+        this.loadResults();
+        this.updateResultsUI();
+        this.setupDarkMode();
+      },
+
+      setupDarkMode() {
+        const toggle = document.getElementById('darkModeToggle');
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+          toggle.textContent = '☀️';
+        }
+
+        toggle.addEventListener('click', () => {
+          const isDark = document.body.classList.toggle('dark-mode');
+          localStorage.setItem('darkMode', isDark);
+          toggle.textContent = isDark ? '☀️' : '🌙';
+        });
+      },
+
+      switchMode(mode) {
+        document.querySelectorAll('.content').forEach(el => {
+          el.classList.remove('active');
+        });
+        
+        this.currentMode = mode;
+        const contentMap = {
+          menu: 'menuContent',
+          camera: 'cameraContent',
+          form: 'formContent',
+          link: 'linkContent',
+          results: 'resultsContent'
+        };
+        
+        document.getElementById(contentMap[mode]).classList.add('active');
+      },
+
+      goToMenu() {
+        this.switchMode('menu');
+      },
+
+      goToCamera() {
+        this.switchMode('camera');
+        this.startCamera();
+      },
+
+      goToForm() {
+        this.currentPhoto = null;
+        this.updatePhotoPreview();
+        this.switchMode('form');
+      },
+
+      goToLink() {
+        document.getElementById('linkInput').value = '';
+        document.getElementById('linkError').innerHTML = '';
+        this.switchMode('link');
+      },
+
+      goToResults() {
+        this.switchMode('results');
+        this.renderResults();
+      },
+
+      async startCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' }
+          });
+          this.cameraStream = stream;
+          const video = document.getElementById('cameraVideo');
+          video.srcObject = stream;
+        } catch (err) {
+          alert('Câmera não disponível: ' + err.message);
+          this.goToMenu();
+        }
+      },
+
+      stopCamera() {
+        if (this.cameraStream) {
+          this.cameraStream.getTracks().forEach(track => track.stop());
+          this.cameraStream = null;
+        }
+      },
+
+      capturePhoto() {
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.getElementById('cameraCanvas');
+        
+        if (canvas && video) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          this.currentPhoto = canvas.toDataURL('image/jpeg');
+          
+          this.stopCamera();
+          this.switchMode('form');
+          this.updatePhotoPreview();
+        }
+      },
+
+      updatePhotoPreview() {
+        const container = document.getElementById('photoPreviewContainer');
+        if (this.currentPhoto) {
+          container.innerHTML = `
+            <div class="photo-preview">
+              <img src="${this.currentPhoto}" alt="Foto capturada">
+              <button type="button" class="remove-photo-btn" onclick="app.removePhoto()">Remover foto</button>
+            </div>
+          `;
+        } else {
+          container.innerHTML = '';
+        }
+      },
+
+      removePhoto() {
+        this.currentPhoto = null;
+        this.updatePhotoPreview();
+      },
+
+      submitForm(event) {
+        event.preventDefault();
+        
+        const form = document.getElementById('dataForm');
+        const formData = new FormData(form);
+        
+        const data = {
+          id: Date.now(),
+          timestamp: new Date().toLocaleString('pt-BR'),
+          phone: formData.get('phone'),
+          fullName: formData.get('fullName'),
+          email: formData.get('email'),
+          address: formData.get('address'),
+          idType: formData.get('idType'),
+          idNumber: formData.get('idNumber'),
+          company: formData.get('company'),
+          position: formData.get('position'),
+          notes: formData.get('notes'),
+          photo: this.currentPhoto
+        };
+
+        this.results.unshift(data);
+        this.saveResults();
+        this.updateResultsUI();
+        
+        form.reset();
+        this.currentPhoto = null;
+        this.updatePhotoPreview();
+        
+        this.switchMode('results');
+        this.renderResults();
+      },
+
+      async extractFromLink() {
+        const url = document.getElementById('linkInput').value.trim();
+        const errorDiv = document.getElementById('linkError');
+        errorDiv.innerHTML = '';
+
+        if (!url) {
+          errorDiv.innerHTML = '<div class="error-message">Cole uma URL válida</div>';
+          return;
+        }
+
+        try {
+          const response = await fetch(url);
+          const html = await response.text();
+
+          const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
+          const phoneRegex = /(\d{2})\s?(\d{4,5})-?(\d{4})/g;
+
+          const emails = html.match(emailRegex) || [];
+          const phones = html.match(phoneRegex) || [];
+
+          const data = {
+            id: Date.now(),
+            timestamp: new Date().toLocaleString('pt-BR'),
+            phone: phones[0] || '',
+            fullName: '',
+            email: emails[0] || '',
+            address: '',
+            idType: '',
+            idNumber: '',
+            company: '',
+            position: '',
+            notes: `Extraído de: ${url}\nEmails encontrados: ${emails.slice(0, 3).join(', ') || 'nenhum'}\nTelefones encontrados: ${phones.slice(0, 3).join(', ') || 'nenhum'}`,
+            photo: null,
+            source: url
+          };
+
+          this.results.unshift(data);
+          this.saveResults();
+          this.updateResultsUI();
+          
+          this.switchMode('results');
+          this.renderResults();
+        } catch (err) {
+          errorDiv.innerHTML = '<div class="error-message">Erro ao extrair: ' + err.message + '</div>';
+        }
+      },
+
+      deleteResult(id) {
+        this.results = this.results.filter(r => r.id !== id);
+        this.saveResults();
+        this.updateResultsUI();
+        this.renderResults();
+      },
+
+      saveResults() {
+        localStorage.setItem('dataResults', JSON.stringify(this.results));
+      },
+
+      loadResults() {
+        const saved = localStorage.getItem('dataResults');
+        this.results = saved ? JSON.parse(saved) : [];
+      },
+
+      updateResultsUI() {
+        const btn = document.getElementById('resultsBtn');
+        const count = this.results.length;
+        
+        if (count > 0) {
+          btn.style.display = 'block';
+          document.getElementById('resultCount').textContent = count;
+        } else {
+          btn.style.display = 'none';
+        }
+      },
+
+      renderResults() {
+        const container = document.getElementById('resultsList');
+        
+        if (this.results.length === 0) {
+          container.innerHTML = '<div class="empty-state">Nenhum dado coletado ainda</div>';
+          return;
+        }
+
+        container.innerHTML = this.results.map(result => `
+          <div class="result-card">
+            <div class="result-header">
+              <span class="result-time">${result.timestamp}</span>
+              <button class="delete-btn" onclick="app.deleteResult(${result.id})">Deletar</button>
+            </div>
+            <div class="result-grid">
+              <div class="result-field">
+                <span class="result-label">Nome</span>
+                <span class="result-value">${result.fullName || '—'}</span>
+              </div>
+              <div class="result-field">
+                <span class="result-label">Telefone</span>
+                <span class="result-value">${result.phone || '—'}</span>
+              </div>
+              <div class="result-field">
+                <span class="result-label">Email</span>
+                <span class="result-value">${result.email || '—'}</span>
+              </div>
+              <div class="result-field">
+                <span class="result-label">Endereço</span>
+                <span class="result-value">${result.address || '—'}</span>
+              </div>
+            </div>
+            ${result.photo ? `<img src="${result.photo}" alt="Foto" class="result-photo">` : ''}
+            ${result.notes ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #666; white-space: pre-wrap; word-break: break-word;">Notas: ${result.notes}</div>` : ''}
+          </div>
+        `).join('');
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>
